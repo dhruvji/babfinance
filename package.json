@@ -1,0 +1,19 @@
+{
+  "name": "babfinance",
+  "version": "1.0.0",
+  "description": "financetracking",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dhruvji/babfinance.git"
+  },
+  "author": "dhruvji",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dhruvji/babfinance/issues"
+  },
+  "homepage": "https://github.com/dhruvji/babfinance#readme"
+}
