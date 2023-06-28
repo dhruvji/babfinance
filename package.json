@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/dhruvji/babfinance/issues"
   },
-  "homepage": "https://github.com/dhruvji/babfinance#readme"
+  "homepage": "https://github.com/dhruvji/babfinance#readme",
+  "dependencies": {
+    "@google-cloud/local-auth": "^2.1.0",
+    "googleapis": "^105.0.0"
+  }
 }
