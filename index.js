@@ -1,8 +1,9 @@
 const fs = require('fs').promises;
 const path = require('path');
 const process = require('process');
-const {authenticate} = require('@google-cloud/local-auth');
 const {google} = require('googleapis');
+const {authenticate} = require('@google-cloud/local-auth');
+
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
@@ -12,26 +13,24 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 const TOKEN_PATH = path.join(process.cwd(), 'token.json');
 const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
 
-const userEmail = 'dhruvgautam@berkeley.edu'; // Specify the user's email here
-main(userEmail).catch(console.error);
 
-async function main(email) {
-  const client = await auth.getClient();
-  const sheets = google.sheets({ version: 'v4', auth: client });
 
-  const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/1n5teNWMzyZF8mfHRhg7YR9d00Gswrp_G8AjDALix3-8/edit?usp=sharing';
-  const spreadsheetId = getSpreadsheetId(spreadsheetUrl);
-  const range = 'Sheet1!A1:G'; // Adjust the range to cover all the columns
+async function bab(auth) {
+  const sheets = google.sheets({ version: 'v4', auth});
+  const email = 'dhruvgautam@berkeley.edu'; // Specify the user's email here
 
-  try {
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range,
-    });
+  //const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/1n5teNWMzyZF8mfHRhg7YR9d00Gswrp_G8AjDALix3-8/edit?usp=sharing';
+  //const spreadsheetId = getSpreadsheetId(spreadsheetUrl);
+  //const range = 'Sheet1!A1:G'; // Adjust the range to cover all the columns
+  
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId: '1n5teNWMzyZF8mfHRhg7YR9d00Gswrp_G8AjDALix3-8',      
+    range: 'Expenses!A1:K',
+  });
 
-    const values = response.data.values;
-    if (values.length) {
-      console.log('Data for', email + ':');
+  const values = response.data.values;
+  if (values.length) {      
+    console.log('Data for', email + ':');
       values.forEach((row) => {
         const [timestamp, userEmail, name, id, category, date, amount, userEmail2, description, link, reimbursement] = row;
         if (userEmail === email || userEmail2 === email) {
@@ -52,22 +51,15 @@ async function main(email) {
     } else {
       console.log('No data found.');
     }
-  } catch (err) {
-    console.error('The API returned an error:', err.message);
-  }
-}
+} 
 
-function getSpreadsheetId(url) {
+//const userEmail = 'dhruvgautam@berkeley.edu'; // Specify the user's email here
+authorize().then(bab).catch(console.error);
+
+/*function getSpreadsheetId(url) {
   const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
   return match && match[1] ? match[1] : null;
-}
-
-
-
-function getSpreadsheetId(url) {
-    const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-    return match && match[1] ? match[1] : null;
-  }
+}*/
 
 
 /**
@@ -122,28 +114,3 @@ async function authorize() {
   }
   return client;
 }
-
-/**
- * Prints the names and majors of students in a sample spreadsheet:
- * @see https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
- * @param {google.auth.OAuth2} auth The authenticated Google OAuth client.
- */
-async function listMajors(auth) {
-  const sheets = google.sheets({version: 'v4', auth});
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
-    range: 'Class Data!A2:E',
-  });
-  const rows = res.data.values;
-  if (!rows || rows.length === 0) {
-    console.log('No data found.');
-    return;
-  }
-  console.log('Name, Major:');
-  rows.forEach((row) => {
-    // Print columns A and E, which correspond to indices 0 and 4.
-    console.log(`${row[0]}, ${row[4]}`);
-  });
-}
-
-authorize().then(listMajors).catch(console.error);
