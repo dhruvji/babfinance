@@ -3,6 +3,7 @@ const path = require('path');
 const process = require('process');
 const {google} = require('googleapis');
 const {authenticate} = require('@google-cloud/local-auth');
+const readline = require('readline');
 
 
 // If modifying these scopes, delete token.json.
@@ -13,26 +14,39 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 const TOKEN_PATH = path.join(process.cwd(), 'token.json');
 const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
 
-
-
 async function bab(auth) {
-  const sheets = google.sheets({ version: 'v4', auth});
-  const email = 'dhruvgautam@berkeley.edu'; // Specify the user's email here
+  const sheets = google.sheets({ version: 'v4', auth });
 
-  //const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/1n5teNWMzyZF8mfHRhg7YR9d00Gswrp_G8AjDALix3-8/edit?usp=sharing';
-  //const spreadsheetId = getSpreadsheetId(spreadsheetUrl);
-  //const range = 'Sheet1!A1:G'; // Adjust the range to cover all the columns
-  
-  const response = await sheets.spreadsheets.values.get({
-    spreadsheetId: '1n5teNWMzyZF8mfHRhg7YR9d00Gswrp_G8AjDALix3-8',      
-    range: 'Expenses!A1:K',
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
   });
 
-  const values = response.data.values;
-  if (values.length) {      
-    console.log('Data for', email + ':');
+  rl.question('Please enter your email: ', async (email) => {
+    rl.close();
+
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: '1n5teNWMzyZF8mfHRhg7YR9d00Gswrp_G8AjDALix3-8',
+      range: 'Expenses!A1:K',
+    });
+
+    const values = response.data.values;
+    if (values.length) {
+      console.log('Data for', email + ':');
       values.forEach((row) => {
-        const [timestamp, userEmail, name, id, category, date, amount, userEmail2, description, link, reimbursement] = row;
+        const [
+          timestamp,
+          userEmail,
+          name,
+          id,
+          category,
+          date,
+          amount,
+          userEmail2,
+          description,
+          link,
+          reimbursement,
+        ] = row;
         if (userEmail === email || userEmail2 === email) {
           console.log('Submitted Timestamp:', timestamp);
           console.log('Email:', userEmail);
@@ -51,16 +65,10 @@ async function bab(auth) {
     } else {
       console.log('No data found.');
     }
-} 
+  });
+}
 
-//const userEmail = 'dhruvgautam@berkeley.edu'; // Specify the user's email here
 authorize().then(bab).catch(console.error);
-
-/*function getSpreadsheetId(url) {
-  const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-  return match && match[1] ? match[1] : null;
-}*/
-
 
 /**
  * Reads previously authorized credentials from the save file.
